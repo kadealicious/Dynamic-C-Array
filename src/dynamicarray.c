@@ -1,28 +1,23 @@
+// Include needed libraries
+
 #include<stdio.h>
 #include<stdint.h>
 #include<memory.h>
 #include"dynamicarray.h"
 
 
-bool daInit(daArray* array, size_t size, size_t elementByteSize, bool zeroInitialize);
-size_t daInsert(daArray* array, void* element, size_t index);	// Returns size of array after insertion.
-size_t daPushBack(daArray* array, void* element);				// Returns index of newly added element.
-void* daGet(daArray* array, size_t index);						// Returns the element as a void*.
-bool daReplace(daArray* array, void* element, size_t index);	// Returns if the element was replaced.
-size_t daRemove(daArray* array, size_t index);					// Returns size of array after deletion.
-bool daResize(daArray* array, size_t newSize);
-bool daFree(daArray* array);
 
-void daPrintUint32(daArray* array);
-size_t daGetFinalElementIndex(daArray* array);
-bool daReallocate(daArray* array, size_t allocationFactor);
-
-
-int main(int argc, char* argv[])
+/**
+ * @brief Main function.
+ *
+ * @return Returns 0 to indicate successful execution.
+ */
+int main()
 {
 	daArray testArray;
 	daInit(&testArray, 4, sizeof(uint32_t), true);
 
+	// Elements that will be stored 
 	uint32_t elements[10] = 
 	{
 		17, 
@@ -36,41 +31,62 @@ int main(int argc, char* argv[])
 		9, 
 		16
 	};
+
+	// Push elements from 0 to 7 (not 8) to our array
 	for(uint8_t i = 0; i < 8; i++)
 	{
-		daPushBack(&testArray, &elements[i]);
-		daPrintUint32(&testArray);
-		getchar();
+		daPushBack(&testArray, &elements[i]); // Main push function
+		daPrintUint32(&testArray); // Print elements in array
+		getchar(); // Get a keypress from user
 	}
 
+	//Insert a test value to array and then print it
 	uint32_t testElement = 100203;
 	daInsert(&testArray, &testElement, 2);
-	daPrintUint32(&testArray);
-	getchar();
+	daPrintUint32(&testArray); 
+	getchar(); // Get a keypress from user
 
+	//Remove fourth (indexing starts from 0) element and print it 
 	daRemove(&testArray, 3);
 	daPrintUint32(&testArray);
-	getchar();
+	getchar(); // Get a keypress from user
 
+	//Print fifth element
 	printf("daGet(5): %i\n", *(uint32_t*)daGet(&testArray, 5));
-	getchar();
+	getchar(); // Get a keypress from user
 
+	//Replace test element (100203) to 900 and print the elements
 	daReplace(&testArray, &testElement, 900);
 	daPrintUint32(&testArray);
-	getchar();
+	getchar(); // Get a keypress from user
 
-	return 0;
+	return 0; // Exit successfully
 }
 
+
+/**
+ * @brief Initialize a dynamic array.
+ *
+ * @param array The dynamic array to initialize.
+ * @param size Initial size of the array.
+ * @param elementByteSize Size of each element in bytes.
+ * @param zeroInitialize Whether to zero-initialize memory.
+ * @return Returns true if initialization is successful, false otherwise.
+ */
 bool daInit(daArray* array, size_t size, size_t elementByteSize, bool zeroInitialize)
 {
-	array->elementByteSize	= elementByteSize;
+	
+	array->elementByteSize	= elementByteSize; 
 	array->elementCount		= 0;
-	array->zeroInitialize	= zeroInitialize;
+	array->zeroInitialize	= zeroInitialize; 
 
+	// If size is not positive, make it 10
 	if(size < 1)			{size = 10;}
+
+	// Double the size
 	size					*= 2;
 	array->allocatedSize	= size;
+
 
 	if(zeroInitialize)
 	{
@@ -81,9 +97,17 @@ bool daInit(daArray* array, size_t size, size_t elementByteSize, bool zeroInitia
 		array->data = malloc(size * elementByteSize);
 	}
 
-	return true;
+	return true;	// Always returning true?
 }
 
+/**
+ * @brief Insert an element at a specific index.
+ *
+ * @param array The dynamic array.
+ * @param element Pointer to the element to insert.
+ * @param index Index at which to insert the element.
+ * @return New size of the array after insertion.
+ */
 size_t daInsert(daArray* array, void* element, size_t index)
 {
 	// Determine if array must be resized before insertion.
@@ -105,6 +129,13 @@ size_t daInsert(daArray* array, void* element, size_t index)
 	return array->elementCount;
 }
 
+/**
+ * @brief Add an element to the end of the array.
+ *
+ * @param array The dynamic array.
+ * @param element Pointer to the element to add.
+ * @return Index of the newly added element.
+ */
 size_t daPushBack(daArray* array, void* element)
 {
 	// Determine if array must be resized before pushing back.
@@ -119,6 +150,14 @@ size_t daPushBack(daArray* array, void* element)
 
 	return finalElementIndex;
 }
+
+/**
+ * @brief Remove an element from the array at a specific index.
+ *
+ * @param array The dynamic array.
+ * @param index Index of the element to remove.
+ * @return New size of the array after removal.
+ */
 size_t daRemove(daArray* array, size_t index)
 {
 	if(index >= array->elementCount)
@@ -134,6 +173,14 @@ size_t daRemove(daArray* array, size_t index)
 
 	return array->elementCount;
 }
+
+/**
+ * @brief Resize the dynamic array.
+ *
+ * @param array The dynamic array.
+ * @param newSize New size for the array.
+ * @return Returns true if resizing is successful, false otherwise.
+ */
 bool daResize(daArray* array, size_t newSize)
 {
 	// Ensure element count stays correct.
@@ -160,6 +207,13 @@ bool daResize(daArray* array, size_t newSize)
 
 	return true;
 }
+
+/**
+ * @brief Free the memory used by the dynamic array.
+ *
+ * @param array The dynamic array to free.
+ * @return Returns true if memory is successfully freed, false otherwise.
+ */
 bool daFree(daArray* array)
 {
 	if(array->allocatedSize > 0)
@@ -175,11 +229,26 @@ bool daFree(daArray* array)
 	return false;
 }
 
+/**
+ * @brief Get an element from the array at a specific index.
+ *
+ * @param array The dynamic array.
+ * @param index Index of the element to retrieve.
+ * @return Pointer to the element at the given index.
+ */
 void* daGet(daArray* array, size_t index)
 {
 	return &array->data[index * array->elementByteSize];
 }
 
+/**
+ * @brief Replace an element at a specific index.
+ *
+ * @param array The dynamic array.
+ * @param element Pointer to the new element.
+ * @param index Index of the element to replace.
+ * @return Returns true if the element was replaced successfully, false otherwise.
+ */
 bool daReplace(daArray* array, void* element, size_t index)
 {
 	if(index >= array->elementCount)
@@ -193,6 +262,11 @@ bool daReplace(daArray* array, void* element, size_t index)
 	return true;
 }
 
+/**
+ * @brief Print the elements of the dynamic array.
+ *
+ * @param array The dynamic array.
+ */
 void daPrintUint32(daArray* array)
 {
 	printf("Allocated: %llu elements/%llub, Element Size: %llub, Element Count: %llu\n", 
@@ -209,6 +283,12 @@ void daPrintUint32(daArray* array)
 	}
 }
 
+/**
+ * @brief Get the index of the last element in the array.
+ *
+ * @param array The dynamic array.
+ * @return Index of the last element.
+ */
 size_t daGetFinalElementIndex(daArray* array)
 {
 	size_t finalElementIndex	= 0;
@@ -217,6 +297,13 @@ size_t daGetFinalElementIndex(daArray* array)
 	return finalElementIndex;
 }
 
+/**
+ * @brief Reallocate the dynamic array with increased size.
+ *
+ * @param array The dynamic array.
+ * @param allocationFactor Factor by which to increase the allocation size.
+ * @return Returns true if reallocation is successful, false otherwise.
+ */
 bool daReallocate(daArray* array, size_t allocationFactor)
 {
 	if((array->allocatedSize - daGetFinalElementIndex(array)) <= 1)
