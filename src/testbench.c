@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdint.h>
-#include"dynamicarray.h"
+#include"da.h"
+#include"daprint.h"
 
 
 
@@ -14,7 +15,7 @@ int main()
 	daArray testArray;
 	daInit(&testArray, 4, sizeof(uint32_t), true);
 
-	// Elements that will be stored 
+	// Test element list.
 	uint32_t elements[10] = 
 	{
 		17, 
@@ -29,33 +30,33 @@ int main()
 		16
 	};
 
-	// Push elements from 0 to 7 (not 8) to our array
+	// Push a subset of elements[] to our dynamic array.
 	for(uint8_t i = 0; i < 8; i++)
 	{
-		daPushBack(&testArray, &elements[i]); // Main push function
-		daPrintUint32(&testArray); // Print elements in array
-		getchar(); // Get a keypress from user
+		daPushBack(&testArray, &elements[i]);
+		daPrintUint32(&testArray);
+		getchar();
 	}
 
-	//Insert a test value to array and then print it
+	//Insert a test value to array and then print it.
 	uint32_t testElement = 100203;
 	daInsert(&testArray, &testElement, 2);
 	daPrintUint32(&testArray); 
-	getchar(); // Get a keypress from user
+	getchar();
 
-	//Remove fourth (indexing starts from 0) element and print it 
+	//Remove fourth element and print it.
 	daRemove(&testArray, 3);
 	daPrintUint32(&testArray);
-	getchar(); // Get a keypress from user
+	getchar();
 
-	//Print fifth element
+	//Print fifth element using daGet().
 	printf("daGet(5): %i\n", *(uint32_t*)daGet(&testArray, 5));
-	getchar(); // Get a keypress from user
+	getchar();
 
-	//Replace test element (100203) to 900 and print the elements
+	//Replace test element and print.
 	daReplace(&testArray, &testElement, 900);
 	daPrintUint32(&testArray);
-	getchar(); // Get a keypress from user
+	getchar(); 
 
-	return 0; // Exit successfully
+	return 0;
 }

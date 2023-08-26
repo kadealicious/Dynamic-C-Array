@@ -1,10 +1,13 @@
 // Include needed libraries
 
-#include<stdio.h>
 #include<stdint.h>
 #include<memory.h>
-#include"dynamicarray.h"
+#include"da.h"
 
+
+// Helper method stubs for internal use only!
+size_t daHelperGetFinalElementIndex(daArray* array);
+bool daHelperReallocateIfNecessary(daArray* array, size_t allocationFactor);
 
 
 /**
@@ -54,19 +57,19 @@ bool daInit(daArray* array, size_t size, size_t elementByteSize, bool zeroInitia
 size_t daInsert(daArray* array, void* element, size_t index)
 {
 	// Determine if array must be resized before insertion.
-	size_t finalElementIndex			= daGetFinalElementIndex(array);
+	size_t finalElementIndex			= daHelperGetFinalElementIndex(array);
 	if(index >= finalElementIndex)		{return (daPushBack(array, element) + 1);}
-	daReallocate(array, 2);
+	daHelperReallocateIfNecessary(array, 2);
 	
 	// Shift memory on right side of index to the right by one element.
 	size_t memoryCopySize	= (array->elementCount - index) * array->elementByteSize;
 	size_t elementIndex		= (index * array->elementByteSize);
 	void* srcMemory			= &array->data[elementIndex];
 	void* dstMemory			= &array->data[elementIndex + array->elementByteSize];
-	memcpy(dstMemory, srcMemory, memoryCopySize);			// BUG: This is likely undefined behavior.
+	memcpy(dstMemory, srcMemory, memoryCopySize);
 
 	// Insert element at index.
-	memcpy(&array->data[elementIndex], element, array->elementByteSize);	// TODO: Don't use memcpy()!  It's slow.
+	memcpy(&array->data[elementIndex], element, array->elementByteSize);
 	array->elementCount++;
 
 	return array->elementCount;
@@ -82,8 +85,8 @@ size_t daInsert(daArray* array, void* element, size_t index)
 size_t daPushBack(daArray* array, void* element)
 {
 	// Determine if array must be resized before pushing back.
-	size_t finalElementIndex = daGetFinalElementIndex(array);
-	daReallocate(array, 2);
+	size_t finalElementIndex = daHelperGetFinalElementIndex(array);
+	daHelperReallocateIfNecessary(array, 2);
 
 	size_t newElementIndex = finalElementIndex * array->elementByteSize;
 	if(array->elementCount != 0)
@@ -110,7 +113,7 @@ size_t daRemove(daArray* array, size_t index)
 	size_t elementIndex		= (index * array->elementByteSize);
 	void* srcMemory			= &array->data[elementIndex];
 	void* dstMemory			= &array->data[elementIndex - array->elementByteSize];
-	memcpy(dstMemory, srcMemory, memoryCopySize);			// BUG: This is likely undefined behavior.
+	memcpy(dstMemory, srcMemory, memoryCopySize);
 
 	array->elementCount--;
 
@@ -206,29 +209,15 @@ bool daReplace(daArray* array, void* element, size_t index)
 }
 
 /**
- * @brief Get the index of the last element in the array.
- *
- * @param array The dynamic array.
- * @return Index of the last element.
- */
-size_t daGetFinalElementIndex(daArray* array)
-{
-	size_t finalElementIndex	= 0;
-	if(array->elementCount > 0)	{finalElementIndex = (array->elementCount - 1);}
-	
-	return finalElementIndex;
-}
-
-/**
  * @brief Reallocate the dynamic array with increased size.
  *
  * @param array The dynamic array.
  * @param allocationFactor Factor by which to increase the allocation size.
  * @return Returns true if reallocation is successful, false otherwise.
  */
-bool daReallocate(daArray* array, size_t allocationFactor)
+bool daHelperReallocateIfNecessary(daArray* array, size_t allocationFactor)
 {
-	if((array->allocatedSize - daGetFinalElementIndex(array)) <= 1)
+	if((array->allocatedSize - daHelperGetFinalElementIndex(array)) <= 1)
 	{
 		daResize(array, array->allocatedSize * allocationFactor);	// BUG: This could get very big.
 		return true;
@@ -240,159 +229,15 @@ bool daReallocate(daArray* array, size_t allocationFactor)
 }
 
 /**
- * @brief Print the elements of the dynamic array.
+ * @brief Get the index of the last element in the array.
  *
  * @param array The dynamic array.
+ * @return Index of the last element.
  */
-void daPrintArrayMetadata(daArray* array)
+size_t daHelperGetFinalElementIndex(daArray* array)
 {
-	printf("Allocated: %llu elements/%llub, Element Size: %llub, Element Count: %llu\n", 
-			array->allocatedSize, (array->allocatedSize * array->elementByteSize), 
-			array->elementByteSize, array->elementCount);
-}
-
-void daPrintUint64(daArray* array)
-{
-	daPrintArrayMetadata(array);
+	size_t finalElementIndex	= 0;
+	if(array->elementCount > 0)	{finalElementIndex = (array->elementCount - 1);}
 	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		uint64_t* data = (uint64_t*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (uint64_t)(data[i]));
-	}
-}
-void daPrintUint32(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		uint32_t* data = (uint32_t*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (uint32_t)(data[i]));
-	}
-}
-void daPrintUint16(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		uint16_t* data = (uint16_t*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (uint16_t)(data[i]));
-	}
-}
-void daPrintUint8(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		uint8_t* data = (uint8_t*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (uint8_t)(data[i]));
-	}
-}
-
-void daPrintInt64(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		int64_t* data = (int64_t*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (int64_t)(data[i]));
-	}
-}
-void daPrintInt32(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		int32_t* data = (int32_t*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (int32_t)(data[i]));
-	}
-}
-void daPrintInt16(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		int16_t* data = (int16_t*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (int16_t)(data[i]));
-	}
-}
-void daPrintInt8(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		int8_t* data = (int8_t*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (int8_t)(data[i]));
-	}
-}
-
-void daPrintFloat(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		float* data = (float*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (float)(data[i]));
-	}
-}
-void daPrintDouble(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		double* data = (double*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (double)(data[i]));
-	}
-}
-void daPrintChar(daArray* array)
-{
-	daPrintArrayMetadata(array);
-	
-	for(size_t i = 0; i < array->allocatedSize; i++)
-	{
-		char* data = (char*)array->data;
-		if(i < array->elementCount)
-			{printf(" <o> ");}
-		else {printf(" < > ");}
-		printf("%i\n", (char)(data[i]));
-	}
+	return finalElementIndex;
 }
