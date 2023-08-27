@@ -2,7 +2,7 @@
 #include<stdint.h>
 #include"da.h"
 #include"daprint.h"
-
+#include"dasort.h"
 
 
 /**
@@ -31,20 +31,29 @@ int main()
 	};
 
 	// Push a subset of elements[] to our dynamic array.
+	printf("daPushBack(): \n");
 	for(uint8_t i = 0; i < 8; i++)
 	{
 		daPushBack(&testArray, &elements[i]);
-		daPrintUint32(&testArray);
-		getchar();
 	}
+	daPrintUint32(&testArray);
+	getchar();
 
 	//Insert a test value to array and then print it.
+	printf("daInsert(100203, 2): \n");
 	uint32_t testElement = 100203;
 	daInsert(&testArray, &testElement, 2);
 	daPrintUint32(&testArray); 
 	getchar();
 
+	// Test element swapping.
+	printf("daSwap(3, 6): \n");
+	daSwap(&testArray, 3, 6);
+	daPrintUint32(&testArray); 
+	getchar();
+
 	//Remove fourth element and print it.
+	printf("daRemove(3): \n");
 	daRemove(&testArray, 3);
 	daPrintUint32(&testArray);
 	getchar();
@@ -54,7 +63,14 @@ int main()
 	getchar();
 
 	//Replace test element and print.
+	printf("daReplace(100203, 900): \n");
 	daReplace(&testArray, &testElement, 900);
+	daPrintUint32(&testArray);
+	getchar();
+
+	//Test quick sort!
+	printf("daQuickSort(): \n");
+	daQuickSort(&testArray, 0, daGetFinalElementIndex(&testArray));
 	daPrintUint32(&testArray);
 	getchar(); 
 

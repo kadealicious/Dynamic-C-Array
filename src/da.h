@@ -11,6 +11,7 @@ typedef struct daArray
 {
 
     void* data;               /**< Pointer to the array data */ // TODO: Add a bucketing system for faster insertion and removal.
+	void* tempElement;        /**< Pointer to temporary element for use in swapping. */
     size_t allocatedSize;     /**< Allocated size of the array */
     size_t elementCount;      /**< Number of elements in the array */
     size_t elementByteSize;   /**< Size of each array element in bytes */
@@ -57,6 +58,16 @@ size_t daPushBack(daArray* array, void* element);
 void* daGet(daArray* array, size_t index);
 
 /**
+ * @brief Swap two elements in the array.
+ *
+ * @param array The dynamic array.
+ * @param index0 Index of the first element to be swapped.
+ * @param index1 Index of the second element to be swapped.
+ * @return True if successful, false otherwise.
+ */
+bool daSwap(daArray* array, size_t index0, size_t index1);
+
+/**
  * @brief Replace an element at a specific index.
  *
  * @param array The dynamic array.
@@ -91,6 +102,15 @@ bool daResize(daArray* array, size_t newSize);
  * @return Returns true if memory is successfully freed, false otherwise.
  */
 bool daFree(daArray* array);
+
+/**
+ * @brief Get the index of the last element in the array.
+ *
+ * @param array The dynamic array.
+ * 
+ * @return Index of the last element (0 is returned if the array is empty).
+ */
+size_t daGetFinalElementIndex(daArray* array);
 
 
 #endif

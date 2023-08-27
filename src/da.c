@@ -6,7 +6,7 @@
 
 
 // Helper method stubs for internal use only!
-size_t daHelperGetFinalElementIndex(daArray* array);
+size_t daGetFinalElementIndex(daArray* array);
 bool daHelperReallocateIfNecessary(daArray* array, size_t allocationFactor);
 
 
@@ -26,24 +26,27 @@ bool daInit(daArray* array, size_t size, size_t elementByteSize, bool zeroInitia
 	array->elementCount		= 0;
 	array->zeroInitialize	= zeroInitialize; 
 
-	// If size is not positive, make it 10
+	// If the user requests an array of size 0, they likely don't know what they want.
 	if(size < 1)			{size = 10;}
-
-	// Double the size
+	// To allow for a bit of dynamic array action before any reallocation occurs.
 	size					*= 2;
 	array->allocatedSize	= size;
 
-
 	if(zeroInitialize)
 	{
-		array->data = calloc(size, elementByteSize);
+		array->data			= calloc(size, elementByteSize);
+		array->tempElement	= calloc(1, elementByteSize);
 	}
 	else
 	{
-		array->data = malloc(size * elementByteSize);
+		array->data			= malloc(size * elementByteSize);
+		array->tempElement	= malloc(elementByteSize);
 	}
 
-	return true;	// Always returning true?
+	if(array->data == NULL || array->tempElement == NULL)
+		{return false;}
+
+	return true;
 }
 
 /**
@@ -57,7 +60,7 @@ bool daInit(daArray* array, size_t size, size_t elementByteSize, bool zeroInitia
 size_t daInsert(daArray* array, void* element, size_t index)
 {
 	// Determine if array must be resized before insertion.
-	size_t finalElementIndex			= daHelperGetFinalElementIndex(array);
+	size_t finalElementIndex			= daGetFinalElementIndex(array);
 	if(index >= finalElementIndex)		{return (daPushBack(array, element) + 1);}
 	daHelperReallocateIfNecessary(array, 2);
 	
@@ -85,7 +88,7 @@ size_t daInsert(daArray* array, void* element, size_t index)
 size_t daPushBack(daArray* array, void* element)
 {
 	// Determine if array must be resized before pushing back.
-	size_t finalElementIndex = daHelperGetFinalElementIndex(array);
+	size_t finalElementIndex = daGetFinalElementIndex(array);
 	daHelperReallocateIfNecessary(array, 2);
 
 	size_t newElementIndex = finalElementIndex * array->elementByteSize;
@@ -129,6 +132,9 @@ size_t daRemove(daArray* array, size_t index)
  */
 bool daResize(daArray* array, size_t newSize)
 {
+	if(newSize < 1)
+		{return daFree(array);}
+
 	// Ensure element count stays correct.
 	array->allocatedSize = newSize;
 	if(array->elementCount > newSize)
@@ -151,6 +157,9 @@ bool daResize(daArray* array, size_t newSize)
 	free(array->data);
 	array->data = tempData;
 
+	if(array->data == NULL)
+		{return false;}
+
 	return true;
 }
 
@@ -168,6 +177,7 @@ bool daFree(daArray* array)
 		array->elementByteSize	= 0;
 		array->elementCount		= 0;
 		free(array->data);
+		free(array->tempElement);
 
 		return true;
 	}
@@ -184,7 +194,33 @@ bool daFree(daArray* array)
  */
 void* daGet(daArray* array, size_t index)
 {
+	if(index >= array->elementCount)
+		{return NULL;}
+	
 	return &array->data[index * array->elementByteSize];
+}
+
+/**
+ * @brief Swap two elements in the array.
+ *
+ * @param array The dynamic array.
+ * @param index0 Index of the first element to be swapped.
+ * @param index1 Index of the second element to be swapped.
+ * @return True if successful, false otherwise.
+ */
+bool daSwap(daArray* array, size_t index0, size_t index1)
+{
+	void* element0 = daGet(array, index0);
+	void* element1 = daGet(array, index1);
+
+	if(element0 == NULL || element1 == NULL)
+		{return false;}
+
+	memcpy(array->tempElement, element0, array->elementByteSize);
+	memcpy(element0, element1, array->elementByteSize);
+	memcpy(element1, array->tempElement, array->elementByteSize);
+
+	return true;
 }
 
 /**
@@ -197,7 +233,7 @@ void* daGet(daArray* array, size_t index)
  */
 bool daReplace(daArray* array, void* element, size_t index)
 {
-	if(index >= array->elementCount)
+	if(index >= array->elementCount || element == NULL)
 		{return false;}
 	
 	size_t elementIndex		= (index * array->elementByteSize);
@@ -209,6 +245,20 @@ bool daReplace(daArray* array, void* element, size_t index)
 }
 
 /**
+ * @brief Get the index of the last element in the array.
+ *
+ * @param array The dynamic array.
+ * @return Index of the last element (0 is returned if the array is empty).
+ */
+size_t daGetFinalElementIndex(daArray* array)
+{
+	size_t finalElementIndex	= 0;
+	if(array->elementCount > 0)	{finalElementIndex = (array->elementCount - 1);}
+	
+	return finalElementIndex;
+}
+
+/**
  * @brief Reallocate the dynamic array with increased size.
  *
  * @param array The dynamic array.
@@ -217,7 +267,7 @@ bool daReplace(daArray* array, void* element, size_t index)
  */
 bool daHelperReallocateIfNecessary(daArray* array, size_t allocationFactor)
 {
-	if((array->allocatedSize - daHelperGetFinalElementIndex(array)) <= 1)
+	if((array->allocatedSize - daGetFinalElementIndex(array)) <= 1)
 	{
 		daResize(array, array->allocatedSize * allocationFactor);	// BUG: This could get very big.
 		return true;
@@ -226,18 +276,4 @@ bool daHelperReallocateIfNecessary(daArray* array, size_t allocationFactor)
 	{
 		return false;
 	}
-}
-
-/**
- * @brief Get the index of the last element in the array.
- *
- * @param array The dynamic array.
- * @return Index of the last element.
- */
-size_t daHelperGetFinalElementIndex(daArray* array)
-{
-	size_t finalElementIndex	= 0;
-	if(array->elementCount > 0)	{finalElementIndex = (array->elementCount - 1);}
-	
-	return finalElementIndex;
 }
