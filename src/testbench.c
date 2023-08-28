@@ -43,24 +43,17 @@ int main()
 	printf("daInsert(100203, 2): \n");
 	uint32_t testElement = 100203;
 	daInsert(&testArray, &testElement, 2);
-	daPrintUint32(&testArray); 
-	getchar();
 
 	// Test element swapping.
 	printf("daSwap(3, 6): \n");
 	daSwap(&testArray, 3, 6);
-	daPrintUint32(&testArray); 
-	getchar();
 
 	//Remove fourth element and print it.
 	printf("daRemove(3): \n");
 	daRemove(&testArray, 3);
-	daPrintUint32(&testArray);
-	getchar();
 
 	//Print fifth element using daGet().
 	printf("daGet(5): %i\n", *(uint32_t*)daGet(&testArray, 5));
-	getchar();
 
 	//Replace test element and print.
 	printf("daReplace(100203, 900): \n");
@@ -68,11 +61,34 @@ int main()
 	daPrintUint32(&testArray);
 	getchar();
 
+	//Test scramble!
+	printf("daScramble(): \n");
+	daScramble(&testArray, 0, daGetFinalElementIndex(&testArray));
+	daPrintUint32(&testArray);
+	getchar();
+
 	//Test quick sort!
 	printf("daQuickSort(): \n");
 	daQuickSort(&testArray, 0, daGetFinalElementIndex(&testArray));
 	daPrintUint32(&testArray);
-	getchar(); 
+	getchar();
+
+	// Test binary search!
+	uint32_t one = 1, two = 2, seventeen = 17, fourtyFive = 45;
+	printf("daBinarySearch(1): %llu\n", daBinarySearch(&testArray, &one, 0, daGetFinalElementIndex(&testArray)));
+	printf("daBinarySearch(2): %llu\n", daBinarySearch(&testArray, &two, 0, daGetFinalElementIndex(&testArray)));
+	printf("daBinarySearch(17): %llu\n", daBinarySearch(&testArray, &seventeen, 0, daGetFinalElementIndex(&testArray)));
+	printf("daBinarySearch(45): %llu\n", daBinarySearch(&testArray, &fourtyFive, 0, daGetFinalElementIndex(&testArray)));
+	printf("daBinarySearch(100203): %llu\n", daBinarySearch(&testArray, &testElement, 0, daGetFinalElementIndex(&testArray)));
+	getchar();
+
+	//Test insertion sort!
+	printf("daScramble()\n");
+	daScramble(&testArray, 0, daGetFinalElementIndex(&testArray));
+	printf("daInsertionSort(): \n");
+	daInsertionSort(&testArray, 0, daGetFinalElementIndex(&testArray));
+	daPrintUint32(&testArray);
+	getchar();
 
 	return 0;
 }

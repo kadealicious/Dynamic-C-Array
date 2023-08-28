@@ -201,29 +201,6 @@ void* daGet(daArray* array, size_t index)
 }
 
 /**
- * @brief Swap two elements in the array.
- *
- * @param array The dynamic array.
- * @param index0 Index of the first element to be swapped.
- * @param index1 Index of the second element to be swapped.
- * @return True if successful, false otherwise.
- */
-bool daSwap(daArray* array, size_t index0, size_t index1)
-{
-	void* element0 = daGet(array, index0);
-	void* element1 = daGet(array, index1);
-
-	if(element0 == NULL || element1 == NULL)
-		{return false;}
-
-	memcpy(array->tempElement, element0, array->elementByteSize);
-	memcpy(element0, element1, array->elementByteSize);
-	memcpy(element1, array->tempElement, array->elementByteSize);
-
-	return true;
-}
-
-/**
  * @brief Replace an element at a specific index.
  *
  * @param array The dynamic array.
