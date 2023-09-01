@@ -221,14 +221,14 @@ bool daHeapSort(daArray* array, size_t indexLow, size_t indexHigh)
  * @param indexLow The lower bound for searching.
  * @param indexHigh The upper bound for searching.
  * 
- * @return Index of the first occurrence of targetElement.  Returns SIZE_MAX if element is not found.
+ * @return Index of the first occurrence of targetElement.  Returns DA_NOT_FOUND (equal to SIZE_MAX) if element is not found.
  * 
  * @note Time best: O(1), time average: O(log(n)), time worst: O(log(n)), space worst: O(1).
  */
 size_t daBinarySearch(daArray* array, void* targetElement, size_t indexLow, size_t indexHigh)
 {
 	if(indexHigh >= array->elementCount)
-		{return SIZE_MAX;}
+		{return DA_NOT_FOUND;}
 
 	while(indexLow <= indexHigh)
 	{
@@ -241,8 +241,8 @@ size_t daBinarySearch(daArray* array, void* targetElement, size_t indexLow, size
 		else if(elementComparison < 0)
 			{indexLow = (indexMiddle + 1);}
 		else if(elementComparison > 0)
-			{indexHigh = indexMiddle;}
+			{indexHigh = (indexMiddle - 1);}
 	}
 
-	return SIZE_MAX;
+	return DA_NOT_FOUND;
 }

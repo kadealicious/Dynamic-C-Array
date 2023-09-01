@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define DA_NOT_FOUND SIZE_MAX
+
+
 /**
  * @brief A dynamic array data structure.
  */

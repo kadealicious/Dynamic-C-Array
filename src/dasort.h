@@ -73,7 +73,7 @@ bool daHeapSort(daArray* array, size_t indexLow, size_t indexHigh);
  * @param indexLow The lower bound for searching.
  * @param indexHigh The upper bound for searching.
  * 
- * @return Index of the first occurrence of targetElement.  Returns SIZE_MAX if element is not found.
+ * @return Index of the first occurrence of targetElement.  Returns DA_NOT_FOUND (equal to SIZE_MAX) if element is not found.
  * 
  * @note Time best: O(1), time average: O(log(n)), time worst: O(log(n)), space worst: O(1).
  */

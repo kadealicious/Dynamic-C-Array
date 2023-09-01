@@ -78,7 +78,7 @@ int main()
 	getchar();
 
 	// Test binary search!
-	uint32_t one = 1, two = 2, seventeen = 17, fourtyFive = 45;
+	uint32_t one = 1, two = 2, seventeen = 17, fourtyFive = 45, oneHundredOne = 101;
 	printf("daBinarySearch(1): %llu\n", daBinarySearch(&testArray, &one, 0, daGetFinalElementIndex(&testArray)));
 	printf("daBinarySearch(2): %llu\n", daBinarySearch(&testArray, &two, 0, daGetFinalElementIndex(&testArray)));
 	printf("daBinarySearch(17): %llu\n", daBinarySearch(&testArray, &seventeen, 0, daGetFinalElementIndex(&testArray)));
@@ -97,9 +97,16 @@ int main()
 	printf("daScramble() + daHeapSort(1, finalElementIndex - 1)\n");
 	daScramble(&testArray, 0, daGetFinalElementIndex(&testArray));
 	daPrintUint32(&testArray);
-	daHeapSort(&testArray, 1, daGetFinalElementIndex(&testArray) - 1);
+	daHeapSort(&testArray, 1, daGetFinalElementIndex(&testArray) - 3);
 	daPrintUint32(&testArray);
 	getchar();
+
+	printf("daBinarySearch(1, 1, finalElementIndex - 3): %llu\n", daBinarySearch(&testArray, &one, 1, daGetFinalElementIndex(&testArray) - 3));
+	printf("daBinarySearch(2, 1, finalElementIndex - 3): %llu\n", daBinarySearch(&testArray, &two, 1, daGetFinalElementIndex(&testArray) - 3));
+	printf("daBinarySearch(17, 1, finalElementIndex - 3): %llu\n", daBinarySearch(&testArray, &seventeen, 1, daGetFinalElementIndex(&testArray) - 3));
+	printf("daBinarySearch(45, 1, finalElementIndex - 3): %llu\n", daBinarySearch(&testArray, &fourtyFive, 1, daGetFinalElementIndex(&testArray) - 3));
+	printf("daBinarySearch(100203, 1, finalElementIndex - 3): %llu\n", daBinarySearch(&testArray, &testElement, 1, daGetFinalElementIndex(&testArray) - 3));
+	printf("daBinarySearch(101, 1, finalElementIndex - 3): %llu\n", daBinarySearch(&testArray, &oneHundredOne, 1, daGetFinalElementIndex(&testArray) - 3));
 
 	return 0;
 }
