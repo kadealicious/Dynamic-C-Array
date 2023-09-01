@@ -47,8 +47,8 @@ bool daScramble(daArray* array, size_t indexLow, size_t indexHigh)
 
 	for(size_t i = 0; i < array->elementCount; i++)
 	{
-		size_t index0 = rand() % (array->elementCount - 1);
-		size_t index1 = rand() % (array->elementCount - 1);
+		size_t index0 = rand() % (array->elementCount);
+		size_t index1 = rand() % (array->elementCount);
 
 		daSwap(array, index0, index1);
 	}
@@ -128,18 +128,86 @@ bool daInsertionSort(daArray* array, size_t indexLow, size_t indexHigh)
 	if(indexHigh >= array->elementCount)
 		{return false;}
 	
+	// Make indexHigh inclusive.  Otherwise, functionality is not consistent with other sorting functions at upper bound.
+	if(indexHigh < daGetFinalElementIndex(array))
+		{indexHigh++;}
+	
 	for(size_t i = (indexLow + 1); i < indexHigh; i++)
 	{
 		size_t subsearchIndex = (i - 1);
 		memcpy(array->tempElement, daGet(array, i), array->elementByteSize);
 		
-		while(subsearchIndex >= 0 && subsearchIndex != SIZE_MAX && memcmp(daGet(array, subsearchIndex), array->tempElement, array->elementByteSize) > 0)
+		while(subsearchIndex >= indexLow && subsearchIndex != SIZE_MAX && memcmp(daGet(array, subsearchIndex), array->tempElement, array->elementByteSize) > 0)
 		{
 			daReplace(array, daGet(array, subsearchIndex), (subsearchIndex + 1));
 			subsearchIndex--;
 		}
 
 		daReplace(array, array->tempElement, (subsearchIndex + 1));
+	}
+
+	return true;
+}
+
+/**
+ * @brief Heapify a subtree within the dynamic array.
+ * 
+ * @param array The dynamic array to sort.
+ * @param root The root node's index within array.
+ * @param heapSize The size of the heap to create.
+ */
+void daHelperHeapify(daArray* array, size_t heapSize, size_t rootIndex, size_t lowShift)
+{
+	size_t largestIndex			= rootIndex;
+	size_t relativeLargestIndex	= (rootIndex - lowShift);
+	size_t leftIndex			= ((2 * relativeLargestIndex) + 1) + lowShift;
+	size_t rightIndex			= ((2 * relativeLargestIndex) + 2) + lowShift;
+
+	if((leftIndex - lowShift) < heapSize && memcmp(daGet(array, leftIndex), daGet(array, largestIndex), array->elementByteSize) > 0)
+	{
+		largestIndex = leftIndex;
+	}
+	if((rightIndex - lowShift) < heapSize && memcmp(daGet(array, rightIndex), daGet(array, largestIndex), array->elementByteSize) > 0)
+	{
+		largestIndex = rightIndex;
+	}
+	if(largestIndex != rootIndex)
+	{
+		daSwap(array, rootIndex, largestIndex);
+		daHelperHeapify(array, heapSize, largestIndex, lowShift);
+	}
+}
+/**
+ * @brief Perform a heap sort sort on the dynamic array using byte comparisions.
+ * 
+ * @param array The dynamic array to sort.
+ * @param indexLow the low index for sorting.
+ * @param indexHigh the high index for sorting.
+ * 
+ * @return True if the array was able to be sorted, false otherwise.
+ * 
+ * @note Time best: O(n log(n)), time average: O(n log(n)), time worst: O(n log(n)), space worst: O(1).
+ */
+bool daHeapSort(daArray* array, size_t indexLow, size_t indexHigh)
+{
+	if(indexHigh >= array->elementCount || indexHigh <= indexLow)
+		{return false;}
+
+	size_t heapSize = (indexHigh - indexLow) + 1;
+
+	// Build max heap.
+	for(size_t i = (heapSize / 2) - 1; i >= 0 && i < SIZE_MAX; i--)
+	{
+		size_t adjustedIndex = (i + indexLow);
+		daHelperHeapify(array, heapSize, adjustedIndex, indexLow);
+	}
+
+	// Perform heap sort on max heap.
+	for(size_t i = (heapSize - 1); i >= 0 && i < SIZE_MAX; i--)
+	{
+		size_t adjustedIndex = (i + indexLow);
+		daSwap(array, adjustedIndex, indexLow);
+		daHelperHeapify(array, i, indexLow, indexLow);	// Heapify root element to get highest element at root again.
 	}
 
 	return true;

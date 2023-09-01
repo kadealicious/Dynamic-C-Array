@@ -30,9 +30,13 @@ int main()
 		16
 	};
 
+	printf("Initial array: \n");
+	daPrintUint32(&testArray);
+	getchar();
+
 	// Push a subset of elements[] to our dynamic array.
 	printf("daPushBack(): \n");
-	for(uint8_t i = 0; i < 8; i++)
+	for(uint8_t i = 0; i < 9; i++)
 	{
 		daPushBack(&testArray, &elements[i]);
 	}
@@ -83,10 +87,17 @@ int main()
 	getchar();
 
 	//Test insertion sort!
-	printf("daScramble()\n");
+	printf("daScramble() + daInsertionSort(2, finalElementIndex - 2): \n");
 	daScramble(&testArray, 0, daGetFinalElementIndex(&testArray));
-	printf("daInsertionSort(): \n");
-	daInsertionSort(&testArray, 0, daGetFinalElementIndex(&testArray));
+	daInsertionSort(&testArray, 2, daGetFinalElementIndex(&testArray) - 2);
+	daPrintUint32(&testArray);
+	getchar();
+
+	//Test heap sort!
+	printf("daScramble() + daHeapSort(1, finalElementIndex - 1)\n");
+	daScramble(&testArray, 0, daGetFinalElementIndex(&testArray));
+	daPrintUint32(&testArray);
+	daHeapSort(&testArray, 1, daGetFinalElementIndex(&testArray) - 1);
 	daPrintUint32(&testArray);
 	getchar();
 

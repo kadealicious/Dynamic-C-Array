@@ -29,7 +29,7 @@ bool daInit(daArray* array, size_t size, size_t elementByteSize, bool zeroInitia
 	// If the user requests an array of size 0, they likely don't know what they want.
 	if(size < 1)			{size = 10;}
 	// To allow for a bit of dynamic array action before any reallocation occurs.
-	size					*= 2;
+	size					*= 1.1f;
 	array->allocatedSize	= size;
 
 	if(zeroInitialize)
