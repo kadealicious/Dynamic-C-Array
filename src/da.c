@@ -171,7 +171,7 @@ bool daResize(daArray* array, size_t newSize)
  */
 bool daFree(daArray* array)
 {
-	if(array->allocatedSize > 0)
+	if(array->allocatedSize > 0)	// BUG: This may cause a double-free if destArray has garbage memory in place of its allocatedSize attribute.  Be careful!
 	{
 		array->allocatedSize	= 0;
 		array->elementByteSize	= 0;

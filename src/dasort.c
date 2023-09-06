@@ -3,9 +3,6 @@
 #include"dasort.h"
 
 
-#include<stdio.h>
-
-
 /**
  * @brief Swap two elements in the array.
  *
@@ -36,7 +33,7 @@ bool daSwap(daArray* array, size_t index0, size_t index1)
  * @param index0 Index of the low scramble bound.
  * @param index1 Index of the upper scramble bound.
  * 
- * @return True if successful, false otherwise.
+ * @warning destArray must be uninitialized if it is not the same array as srcArray.
  */
 bool daScramble(daArray* array, size_t indexLow, size_t indexHigh)
 {

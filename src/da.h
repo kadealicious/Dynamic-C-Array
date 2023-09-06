@@ -4,11 +4,16 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define DA_NOT_FOUND SIZE_MAX
+#define DA_ERROR			SIZE_MAX
+#define DA_INVALID_ARRAY	SIZE_MAX
+#define DA_NOT_FOUND		SIZE_MAX
+#define DA_INVALID_INDICES	SIZE_MAX
 
 
 /**
  * @brief A dynamic array data structure.
+ * 
+ * @warning Always zero-initialize!
  */
 typedef struct daArray
 {

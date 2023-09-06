@@ -30,7 +30,7 @@ Here's a simple example of using the Dynamic Array Library to create a resizable
 #include "dynamicarray.h"
 
 int main() {
-    daArray intArray;
+    daArray intArray = {};
     daInit(&intArray, 10, sizeof(int), true); // Initialize with 10 elements, each sizeof(int) bytes.
 
     int value = 42;
