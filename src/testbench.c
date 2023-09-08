@@ -22,7 +22,7 @@ int main()
 	daArray a0 			= {};
 	daArray a1			= {};
 	daInit(&testArray, 4, sizeof(uint32_t), true);
-	daInit(&a0, 17, sizeof(uint32_t), false);
+	daInit(&a0, 17, sizeof(uint32_t), true);
 	daInit(&a1, 6, sizeof(uint32_t), true);
 
 	TestBasicFunctionality(&testArray);
@@ -153,10 +153,21 @@ void TestCombos(daArray* array0, daArray* array1, daArray* array2)
 		{daPushBack(array1, &moreElements[i]);}
 	for(size_t i = 1; i < 4; i++)
 		{daPushBack(array2, &moreElements[i]);}
+	
+	printf("Arrays 0, 1, & 2: \n");
+	daPrintUint32(array0);
+	daPrintUint32(array1);
+	daPrintUint32(array2);
 
 	// Test array appendation!
 	printf("daAppend(): \n");
 	daAppend(array0, array1, array2);
+	daPrintUint32(array0);
+	getchar();
+
+	// Test array duplication.
+	printf("daDuplicate(): \n");
+	daDuplicate(array0, array1);
 	daPrintUint32(array0);
 	getchar();
 }

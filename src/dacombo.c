@@ -37,6 +37,8 @@ size_t daSplit(daArray* destArray, daArray* srcArray, size_t indexLow, size_t in
 
 size_t daAppend(daArray* destArray, daArray* array0, daArray* array1)
 {
+	// BUG: Sometimes this does not entirely zero-out memory outside of element count bounds.  Shouldn't really matter that much anyways.
+
 	if(array0->allocatedSize == 0 || array1->allocatedSize == 0 || array0->elementByteSize != array1->elementByteSize)
 		{return DA_INVALID_ARRAY;}
 	
@@ -62,7 +64,7 @@ size_t daAppend(daArray* destArray, daArray* array0, daArray* array1)
 	}
 	else
 	{
-		size_t destMemoryCo`yStart	= 0;
+		size_t destMemoryCopyStart	= 0;
 		size_t array0MemoryCopySize	= (array0->elementCount * elementByteSize);
 		size_t array1MemoryCopySize	= (array1->elementCount * elementByteSize);
 
@@ -77,4 +79,18 @@ size_t daAppend(daArray* destArray, daArray* array0, daArray* array1)
 	destArray->elementCount		= (destArray->allocatedSize);
 
 	return destArray->elementCount;
+}
+
+bool daDuplicate(daArray* destArray, daArray* srcArray)
+{
+	if(destArray == srcArray)
+		{return DA_INVALID_ARRAY;}
+	
+	daFree(destArray);	// BUG: This may cause a double-free if destArray has garbage memory in place of its allocatedSize attribute.  Be careful!
+	daInit(destArray, srcArray->allocatedSize, srcArray->elementByteSize, srcArray->zeroInitialize);
+
+	size_t memoryCopySize = (srcArray->elementCount * srcArray->elementByteSize);
+	memcpy(destArray->data, srcArray->data, memoryCopySize);
+
+	return true;
 }

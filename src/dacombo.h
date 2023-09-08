@@ -32,4 +32,17 @@ size_t daSplit(daArray* destArray, daArray* srcArray, size_t indexLow, size_t in
 size_t daAppend(daArray* destArray, daArray* array0, daArray* array1);
 
 
+/**
+ * @brief Duplicate the contents of srcArray into destArray, erasing any data previously held in destArray.
+ *
+ * @param destArray The destination array.
+ * @param srcArray The source array.
+ * 
+ * @return True if the duplication was a success, DA_INVALID_ARRAY (equal to SIZE_MAX) if unsuccessful.
+ * 
+ * @warning destArray must be uninitialized if it is not the same array as srcArray.
+ */
+bool daDuplicate(daArray* destArray, daArray* srcArray);
+
+
 #endif
