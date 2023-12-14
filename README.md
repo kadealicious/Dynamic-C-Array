@@ -47,7 +47,7 @@ int main() {
 
 ## Documentation
 
-For detailed information about the library's functions, parameters, and usage, refer to the [header file](./src/dynamicarray.h).
+For detailed information about the library's functions, parameters, and usage, refer to the [header file](./src/da.h).
 
 ## Contributing
 
